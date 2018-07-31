@@ -1,5 +1,5 @@
 # genBTC
-just glueing chunks of code<sup>[1](#chunk-1)</sup><sup>[2](#chunk-2)</sup> to better understand [how bitcoin addresses work](https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses)
+just glueing chunks of code<sup>[1,](#chunk-1)</sup><sup>[2](#chunk-2)</sup> to better understand [how bitcoin addresses work](https://en.bitcoin.it/wiki/Technical_background_of_version_1_Bitcoin_addresses)
 
 ---
 
