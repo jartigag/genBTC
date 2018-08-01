@@ -5,6 +5,7 @@
 #
 
 import argparse
+import qrcode
 
 # [i] from: https://bitcoin.stackexchange.com/questions/25024/how-do-you-get-a-bitcoin-public-key-from-a-private-key
 
@@ -63,11 +64,21 @@ def hash160(hex_str):
 	#print ( "key_hash = \t" + rip.hexdigest() )
 	return rip.hexdigest()  # .hexdigest() is hex ASCII
 
+# [iii] from: https://www.reddit.com/r/Bitcoin/comments/7tzq3w/generate_your_own_private_key_5_lines_of_python/
+
+import binascii
+
+def privKeyToWif(str_hexKey):
+	fullKey = "80" + str_hexKey
+	sha256a = hashlib.sha256(binascii.unhexlify(fullKey)).hexdigest()
+	sha256b = hashlib.sha256(binascii.unhexlify(sha256a)).hexdigest()
+	return base58.b58encode(binascii.unhexlify(fullKey+sha256b[:8])).decode()
+
 if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(description=
 		"given a private key, generate its public key and bitcoin address")
-	parser.add_argument('privKey',help="private key. 0x prefix needed")
+	parser.add_argument('privKey',help="private key (hex without 0x)")
 	parser.add_argument('--compressed',action='store_true',help="public key in compressed form")
 
 	args = parser.parse_args()
@@ -79,7 +90,8 @@ if __name__ == "__main__":
 	### 1. set privKey,g -> pubKey
 
 	#In Bitcoin, a private key is a single unsigned 256 bit integer (32 bytes).
-	privKey = int(args.privKey,0)
+	str_privKey = args.privKey
+	privKey = int(str_privKey,16)
 	g = Point(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
 			0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8,
 			0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141)
@@ -88,9 +100,14 @@ if __name__ == "__main__":
 	# See 'compressed form' at https://en.bitcoin.it/wiki/Protocol_documentation#Signatures
 	compress_pubKey = args.compressed
 
-	### 2. print privKey, pubKey
+	### 2. print privKey, wif privKey, pubKey
 
 	print('privKey (hex format) = \t' + hex(privKey))
+	wif = privKeyToWif(str_privKey)
+	print('privKey (wif format) = \t' + wif)
+	print('(wif qrcode will pop up)')
+	img = qrcode.make(wif)
+	img.show()
 	print('pubKey = \t\t' + hex(pubKey))
 
 	### 3. pubKey -> btc-address
