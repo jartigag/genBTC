@@ -55,9 +55,6 @@ def inverse_mod(a):
 import hashlib
 import base58
 
-# See 'compressed form' at https://en.bitcoin.it/wiki/Protocol_documentation#Signatures
-compress_pubKey = False
-
 def hash160(hex_str):
 	sha = hashlib.sha256()
 	rip = hashlib.new('ripemd160')
@@ -71,6 +68,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description=
 		"given a private key, generate its public key and bitcoin address")
 	parser.add_argument('privKey',help="private key. 0x prefix needed")
+	parser.add_argument('--compressed',action='store_true',help="public key in compressed form")
 
 	args = parser.parse_args()
 
@@ -85,24 +83,27 @@ if __name__ == "__main__":
 	g = Point(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
 			0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8,
 			0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141)
-	pubKey = str(g * privKey)
+	hex_str_pubKey = str(g * privKey)
+	pubKey = int(hex_str_pubKey,16)
+	# See 'compressed form' at https://en.bitcoin.it/wiki/Protocol_documentation#Signatures
+	compress_pubKey = args.compressed
 
 	### 2. print privKey, pubKey
 
-	print('privKey = \t' + str(privKey))
-	print('pubKey = \t' + pubKey)
+	print('privKey (hex format) = \t' + hex(privKey))
+	print('pubKey = \t\t' + hex(pubKey))
 
 	### 3. pubKey -> btc-address
 
 	if (compress_pubKey):
-		if (ord(bytearray.fromhex(pubKey[-2:])) % 2 == 0):
+		if (ord(bytearray.fromhex(hex_str_pubKey[-2:])) % 2 == 0):
 			pubKey_compressed = '02'
 		else:
 			pubKey_compressed = '03'
-		pubKey_compressed += pubKey[2:66]
+		pubKey_compressed += hex_str_pubKey[2:66]
 		hex_str = bytearray.fromhex(pubKey_compressed)
 	else:
-		hex_str = bytearray.fromhex(pubKey)
+		hex_str = bytearray.fromhex(hex_str_pubKey)
 
 	# Obtain key:
 	key_hash = '00' + hash160(hex_str)
@@ -122,4 +123,4 @@ if __name__ == "__main__":
 
 	#print ( "checksum = \t" + sha.hexdigest() )
 	#print ( "key_hash + checksum = \t" + key_hash + ' ' + checksum )
-	print ( "BTC-address = \t" +  bctAddress)
+	print ( "BTC-address = \t\t" +  bctAddress)
