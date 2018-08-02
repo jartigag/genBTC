@@ -77,8 +77,9 @@ def privKeyToWif(str_hexKey):
 if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(description=
-		"given a private key, generate its public key and bitcoin address")
-	parser.add_argument('privKey',help="private key (hex without 0x)")
+		"given a private key, generate its public key and bitcoin address",
+		formatter_class=argparse.RawTextHelpFormatter)
+	parser.add_argument('privKey',help="private key (32-bytes number in hex)\ne.g.: $(tr -dc 'A-F0-9' < /dev/urandom | head -c32)")
 	parser.add_argument('--compressed',action='store_true',help="public key in compressed form")
 
 	args = parser.parse_args()
